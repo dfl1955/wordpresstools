@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# browses the wp cache folders and deletes old sub-folders
+
+echo $0 ... starts
+
+VER=1.1
+
+H=`pwd`
+
+tooold()
+{
+	# this doesn't work in a find statement
+	r=$(~/bin/fileage.py $1)
+	echo $1 $r
+}
+threshold=314572800
+
+echo threshold for whole directory purge is 300mb
+
+# this would better with an asssociative array
+
+for i in ~/next/wp-content/cache/page_enhanced/davelevy.info ~/next/wiki/wp-content/cache/page_enhanced/davelevy.info/wiki
+do
+	echo $i
+	size=$(du -s  $i)
+	size=$(echo $size | cut -f1 -d" ")
+	echo size is $size bytes, threshold is $threshold
+	if [ $size -gt $threshold ];then
+		echo size is $size, more than threshold
+		cd $i; pwd
+		rm -rf *
+		du -h -d 1
+		continue
+	fi
+	cd $i; pwd
+	echo  ... finding old cache folders
+	for b in *
+	do
+		age=$(~/bin/fileage.py $b | cut -f4 -d" " )
+		age=$(echo $age | cut -f2 -d" ")
+		if [ $age -gt 0 ];then
+			echo $b $age
+			rm -rf $b
+		fi
+	done
+	du -h -s
+done
+cd $H
+	
+echo $0 ... ends
