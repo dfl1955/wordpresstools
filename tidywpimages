@@ -1,0 +1,33 @@
+ #!/bin/bash
+
+#written to remove certain image files from a wordpress uploads cache, to be run from its root, i.e.
+# ~/uploads/
+
+VER=1.1
+USAGE="$0 -b|-s -x "
+
+# -b if over 100k, -s if contains string 1536
+# these must be $1
+# if $2 -x then it should deleyte the files, using it withiut the -x and | to mv has a similar effect
+
+if [ -z $1 ];then
+        echo  $USAGE
+        exit
+fi
+WF1=/tmp/fbf$$
+touch $WF1
+
+case $1 in
+-b)     find . -name "*.jpg" -size +100k > $WF1
+        ;;
+-s) find . -name "*.jpg" | grep 1536 > $WF1
+        ;;
+*)  echo $USAGE ; ;;
+esac
+
+case $2 in
+-x) cat $WF1 | rm -i; ;;
+*)      cat $WF1 ; ;;
+esac
+
+rm $WF1
